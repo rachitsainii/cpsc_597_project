@@ -16,26 +16,22 @@ input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
 # Define a directory to store the uploaded images
-UPLOAD_FOLDER = './uploads/'
+UPLOAD_FOLDER = '/uploads/'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 # Function to preprocess and predict
 def predict(image_path):
-    # Load and preprocess the image
     img = Image.open(image_path).resize((150, 150))
     img_array = np.array(img, dtype=np.float32)
     img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
 
-    # Set the tensor and invoke the model
     interpreter.set_tensor(input_details[0]['index'], img_array)
     interpreter.invoke()
 
-    # Get the output
     output = interpreter.get_tensor(output_details[0]['index'])
     result = np.argmax(output[0])
 
-    # Define class labels and messages
     labels = {0: 'Glioma Tumour', 1: 'Meningioma Tumour', 2: 'No Tumour', 3: 'Pituitary Tumour'}
     prediction_text = labels[result]
 
@@ -52,7 +48,8 @@ def predict(image_path):
 def index():
     prediction = None
     message = None
-    image_path = None  # To store the path of the uploaded image
+    image_url = None  # URL for the displayed image
+
     if request.method == 'POST':
         imagefile = request.files.get('imagefile')
         if imagefile:
@@ -64,10 +61,11 @@ def index():
             # Get the prediction and message
             prediction, message = predict(image_path)
 
-    # Render the index page with optional prediction, message, and image_path
-    return render_template('index.html', prediction=prediction, message=message, image_path=image_path)
+            # Define the image URL to be used in the template
+            image_url = f"./uploads/{filename}"
 
-# Route to serve the uploaded images
+    return render_template('index.html', prediction=prediction, message=message, image_url=image_url)
+
 @app.route('/uploads/<filename>')
 def serve_image(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)

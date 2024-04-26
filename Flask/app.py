@@ -33,13 +33,14 @@ def predict(image_path):
     result = np.argmax(output[0])
 
     labels = {0: 'Glioma Tumour', 1: 'Meningioma Tumour', 2: 'No Tumour', 3: 'Pituitary Tumour'}
+    recommendation = ' Consult a specialist for further advice.'
     prediction_text = labels[result]
 
     message = {
-        'Glioma Tumour': "Glioma Tumour detected. Consult a specialist for further advice.",
-        'Meningioma Tumour': "Meningioma Tumour detected. Consult a specialist for further advice.",
-        'No Tumour': "No tumour detected.",
-        'Pituitary Tumour': "Pituitary Tumour detected. Consult a specialist for further advice."
+        'Glioma Tumour': "Glioma Tumour detected. Abnormal growth in the glial cells." + recommendation,
+        'Meningioma Tumour': "Meningioma Tumour detected. Abnormal growth in the meninges." + recommendation,
+        'No Tumour': "No tumour is detected.",
+        'Pituitary Tumour': "Pituitary Tumour detected. Abnormal growth in the pituitary gland." + recommendation
     }.get(prediction_text, "Unknown result")
 
     return prediction_text, message
